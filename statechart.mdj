@@ -978,19 +978,19 @@
 									"showShadow": true,
 									"containerChangeable": false,
 									"containerExtending": false,
-									"left": 207,
-									"top": 424,
-									"width": 76,
+									"left": 215,
+									"top": 423,
+									"width": 72,
 									"height": 13,
 									"autoResize": false,
-									"alpha": 1.2818222753043416,
+									"alpha": 2.2091174933041753,
 									"distance": 6.708203932499369,
 									"hostEdge": {
 										"$ref": "AAAAAAFSoYrK41U/Tl8="
 									},
 									"edgePosition": 1,
 									"underline": false,
-									"text": "GET / DROP",
+									"text": "GET, DROP",
 									"horizontalAlignment": 2,
 									"verticalAlignment": 5
 								},
@@ -1119,9 +1119,9 @@
 									"showShadow": true,
 									"containerChangeable": false,
 									"containerExtending": false,
-									"left": 108,
+									"left": 70,
 									"top": 465,
-									"width": 79,
+									"width": 155,
 									"height": 13,
 									"autoResize": false,
 									"alpha": 1.5707963267948966,
@@ -1131,7 +1131,7 @@
 									},
 									"edgePosition": 1,
 									"underline": false,
-									"text": "LOOK / QUIT",
+									"text": "LOOK, QUIT, GET, DROP",
 									"horizontalAlignment": 2,
 									"verticalAlignment": 5
 								},
@@ -1260,19 +1260,19 @@
 									"showShadow": true,
 									"containerChangeable": false,
 									"containerExtending": false,
-									"left": 360,
+									"left": 328,
 									"top": 351,
-									"width": 79,
+									"width": 109,
 									"height": 13,
 									"autoResize": false,
-									"alpha": -2.4087783607000057,
-									"distance": 13.45362404707371,
+									"alpha": -1.9379705458893948,
+									"distance": 27.85677655436824,
 									"hostEdge": {
 										"$ref": "AAAAAAFSoYtuU1Vp0ag="
 									},
 									"edgePosition": 1,
 									"underline": false,
-									"text": "LOOK / QUIT",
+									"text": "PUT, LOOK, QUIT",
 									"horizontalAlignment": 2,
 									"verticalAlignment": 5
 								},
@@ -1464,7 +1464,7 @@
 							"_parent": {
 								"$ref": "AAAAAAFSoXVe+lSNV0o="
 							},
-							"name": "GET / DROP",
+							"name": "GET, DROP",
 							"source": {
 								"$ref": "AAAAAAFSoYb6kVTOJ5g="
 							},
@@ -1480,6 +1480,7 @@
 							"_parent": {
 								"$ref": "AAAAAAFSoXVe+lSNV0o="
 							},
+							"name": "LOOK, QUIT, GET, DROP",
 							"source": {
 								"$ref": "AAAAAAFSoYX8+FSTuoY="
 							},
@@ -1487,31 +1488,7 @@
 								"$ref": "AAAAAAFSoYX8+FSTuoY="
 							},
 							"visibility": "public",
-							"kind": "external",
-							"triggers": [
-								{
-									"_type": "UMLEvent",
-									"_id": "AAAAAAFSoYyZeFWG4ik=",
-									"_parent": {
-										"$ref": "AAAAAAFSoYsDv1VRcEY="
-									},
-									"name": "LOOK",
-									"visibility": "public",
-									"kind": "anyReceive"
-								}
-							],
-							"effects": [
-								{
-									"_type": "UMLOpaqueBehavior",
-									"_id": "AAAAAAFSoYzztlWM/h4=",
-									"_parent": {
-										"$ref": "AAAAAAFSoYsDv1VRcEY="
-									},
-									"name": "QUIT",
-									"visibility": "public",
-									"isReentrant": true
-								}
-							]
+							"kind": "external"
 						},
 						{
 							"_type": "UMLTransition",
@@ -1519,6 +1496,7 @@
 							"_parent": {
 								"$ref": "AAAAAAFSoXVe+lSNV0o="
 							},
+							"name": "PUT, LOOK, QUIT",
 							"source": {
 								"$ref": "AAAAAAFSoYb6kVTOJ5g="
 							},
@@ -1526,31 +1504,7 @@
 								"$ref": "AAAAAAFSoYb6kVTOJ5g="
 							},
 							"visibility": "public",
-							"kind": "external",
-							"triggers": [
-								{
-									"_type": "UMLEvent",
-									"_id": "AAAAAAFSoYyL+VWDq/o=",
-									"_parent": {
-										"$ref": "AAAAAAFSoYtuU1VonFU="
-									},
-									"name": "LOOK",
-									"visibility": "public",
-									"kind": "anyReceive"
-								}
-							],
-							"effects": [
-								{
-									"_type": "UMLOpaqueBehavior",
-									"_id": "AAAAAAFSoYzjrVWJXTM=",
-									"_parent": {
-										"$ref": "AAAAAAFSoYtuU1VonFU="
-									},
-									"name": "QUIT",
-									"visibility": "public",
-									"isReentrant": true
-								}
-							]
+							"kind": "external"
 						}
 					]
 				}
