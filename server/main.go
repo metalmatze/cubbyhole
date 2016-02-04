@@ -66,7 +66,10 @@ func main() {
 		}
 	}
 
-	app.Run(os.Args)
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func handleRequest(connection net.Conn, channel chan string) {
@@ -94,6 +97,10 @@ func handleRequest(connection net.Conn, channel chan string) {
 			channel <- ResponseHelp + ResponsePropmt
 		case RequestQuit:
 			channel <- ResponseQuit
+			err := connection.Close()
+			if err != nil {
+				log.Fatal(err)
+			}
 		default:
 			channel <- ResponseNotSupported + ResponsePropmt
 		}
@@ -103,6 +110,9 @@ func handleRequest(connection net.Conn, channel chan string) {
 func sendData(connection net.Conn, channel chan string) {
 	for {
 		response := <-channel
-		io.Copy(connection, bytes.NewBufferString(response))
+		_, err := io.Copy(connection, bytes.NewBufferString(response))
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
