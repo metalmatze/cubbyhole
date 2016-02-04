@@ -51,9 +51,8 @@ func main() {
 			log.Printf("Received %s -> %s", connection.RemoteAddr(), connection.LocalAddr())
 
 			channel := make(chan string)
-			errChannel := make(chan error)
 
-			go handleRequest(connection, channel, errChannel)
+			go handleRequest(connection, channel)
 			go sendData(connection, channel)
 
 			channel <- RESPONSE_WELCOME + RESPONSE_PROPMT
@@ -63,12 +62,12 @@ func main() {
 	app.Run(os.Args)
 }
 
-func handleRequest(connection net.Conn, channel chan string, errChannel chan error) {
+func handleRequest(connection net.Conn, channel chan string) {
 	for {
 		buffer := make([]byte, 1024)
 		len, err := connection.Read(buffer)
 		if err != nil {
-			errChannel <- err
+			log.Fatal(err)
 		}
 
 		request := string(buffer[:len])
