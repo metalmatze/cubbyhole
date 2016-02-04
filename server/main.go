@@ -12,16 +12,23 @@ import (
 )
 
 const (
-	RESPONSE_WELCOME       = "!HELLO: Welcome to the Cubbyhole Server! Try 'help' for a list of commands"
-	RESPONSE_HELP          = "!HELP:\nThe following commands are supported by this Cubbyhole:\n\nPUT <message>\t- Places a new message in the cubbyhole\nGET\t\t- Takes the message out of the cubbyhole and displays it\nLOOK\t\t- Displays the massage without taking it out of the cubbyhole\nDROP\t\t- Takes the message out of the cubbyhole without displaying it\nHELP\t\t- Displays this help message\nQUIT\t\t- Terminates the connection\n"
-	RESPONSE_DROP          = "!DROP: ok"
-	RESPONSE_GET           = "!GET: "
-	RESPONSE_LOOK          = "!LOOK: "
-	RESPONSE_PUT           = "!PUT: ok"
-	RESPONSE_QUIT          = "!QUIT: ok"
-	RESPONSE_NOT_SUPPORTED = "!NOT SUPPORTED"
-	RESPONSE_NO_MESSAGE    = "<no message stored>"
-	RESPONSE_PROPMT        = "\n> "
+	RequestPut  = "put"
+	RequestGet  = "get"
+	RequestLook = "look"
+	RequestDrop = "drop"
+	RequestHelp = "help"
+	RequestQuit = "quit"
+
+	ResponseWelcome      = "!HELLO: Welcome to the Cubbyhole Server! Try 'help' for a list of commands"
+	ResponseHelp         = "!HELP:\nThe following commands are supported by this Cubbyhole:\n\nPUT <message>\t- Places a new message in the cubbyhole\nGET\t\t- Takes the message out of the cubbyhole and displays it\nLOOK\t\t- Displays the massage without taking it out of the cubbyhole\nDROP\t\t- Takes the message out of the cubbyhole without displaying it\nHELP\t\t- Displays this help message\nQUIT\t\t- Terminates the connection\n"
+	ResponseDrop         = "!DROP: ok"
+	ResponseGet          = "!GET: "
+	ResponseLook         = "!LOOK: "
+	ResponsePut          = "!PUT: ok"
+	ResponseQuit         = "!QUIT: ok"
+	ResponseNotSupported = "!NOT SUPPORTED"
+	ResponseNoMessage    = "<no message stored>"
+	ResponsePropmt       = "\n> "
 )
 
 var (
@@ -55,7 +62,7 @@ func main() {
 			go handleRequest(connection, channel)
 			go sendData(connection, channel)
 
-			channel <- RESPONSE_WELCOME + RESPONSE_PROPMT
+			channel <- ResponseWelcome + ResponsePropmt
 		}
 	}
 
@@ -74,20 +81,21 @@ func handleRequest(connection net.Conn, channel chan string) {
 		requestStrings := strings.Split(strings.TrimSpace(request), " ")
 
 		switch strings.ToLower(requestStrings[0]) {
-		case "put":
+		case RequestPut:
 			channel <- "putting"
-		case "get":
+		case RequestGet:
 			channel <- "getting"
-		case "look":
+		case RequestLook:
 			channel <- "looking"
-		case "drop":
+		case RequestDrop:
 			channel <- "dropping"
-		case "help":
-			channel <- RESPONSE_HELP + RESPONSE_PROPMT
-		case "quit":
-			connection.Close()
+		case RequestHelp:
+			log.Println(connection.RemoteAddr(), "help")
+			channel <- ResponseHelp + ResponsePropmt
+		case RequestQuit:
+			channel <- ResponseQuit
 		default:
-			channel <- RESPONSE_NOT_SUPPORTED + RESPONSE_PROPMT
+			channel <- ResponseNotSupported + ResponsePropmt
 		}
 	}
 }
