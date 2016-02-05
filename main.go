@@ -33,10 +33,11 @@ const (
 )
 
 var (
-	host string = ""
-	port int    = 1337
+	host = ""
+	port = 1337
 )
 
+// Client is a wrapper for its net.Conn and channels.
 type Client struct {
 	Connection net.Conn
 	Connected  chan bool
@@ -44,6 +45,7 @@ type Client struct {
 	Outgoing   chan string
 }
 
+// ReadString reads from the client's connection into a buffer and returns the buffer's content as string.
 func (c *Client) ReadString() (string, error) {
 	buffer := make([]byte, 1024)
 	bytesRead, err := c.Connection.Read(buffer)
@@ -56,6 +58,7 @@ func (c *Client) ReadString() (string, error) {
 	return request, nil
 }
 
+// Close shutsdown the client's connection and its channels.
 func (c *Client) Close() {
 	log.Printf("Closing connection to %s", c.Connection.RemoteAddr())
 	c.Connected <- false
