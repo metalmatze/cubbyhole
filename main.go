@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/MetalMatze/cubbyhole/server/cubbyhole"
+	"github.com/MetalMatze/cubbyhole/cubbyhole"
 	"github.com/codegangsta/cli"
 	"io"
 	"log"
@@ -37,6 +37,36 @@ var (
 	port int    = 1337
 )
 
+type Client struct {
+	Connection net.Conn
+	Connected  chan bool
+	Incoming   chan string
+	Outgoing   chan string
+}
+
+func (c *Client) ReadString() (string, error) {
+	buffer := make([]byte, 1024)
+	bytesRead, err := c.Connection.Read(buffer)
+	if err != nil {
+		c.Close()
+		log.Fatal(err)
+		return "", err
+	}
+	request := string(buffer[:bytesRead])
+	return request, nil
+}
+
+func (c *Client) Close() {
+	log.Printf("Closing connection to %s", c.Connection.RemoteAddr())
+	c.Connected <- false
+	close(c.Incoming)
+	close(c.Outgoing)
+	close(c.Connected)
+	if err := c.Connection.Close(); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "cubbyhole Server"
@@ -58,14 +88,19 @@ func main() {
 			if err != nil {
 				log.Panic(err)
 			}
-			log.Printf("Received %s -> %s", connection.RemoteAddr(), connection.LocalAddr())
+			log.Printf("Listenting %s -> %s", connection.RemoteAddr(), connection.LocalAddr())
 
-			channel := make(chan string)
+			client := Client{
+				Connection: connection,
+				Connected:  make(chan bool),
+				Incoming:   make(chan string),
+				Outgoing:   make(chan string),
+			}
 
-			go handleRequest(connection, channel, &cubbyhole)
-			go sendData(connection, channel)
+			go handleRequest(&client, &cubbyhole)
+			go sendData(&client)
 
-			channel <- ResponseWelcome
+			client.Outgoing <- ResponseWelcome
 		}
 	}
 
@@ -75,62 +110,61 @@ func main() {
 	}
 }
 
-func handleRequest(connection net.Conn, channel chan string, cubbyhole *cubbyhole.Cubbyhole) {
+func handleRequest(client *Client, cubbyhole *cubbyhole.Cubbyhole) {
 	for {
-		buffer := make([]byte, 1024)
-		bufferLen, err := connection.Read(buffer)
+		request, err := client.ReadString()
 		if err != nil {
-			log.Panic(err)
+			log.Println(err)
+			return
 		}
 
-		request := string(buffer[:bufferLen])
 		requestStrings := strings.Split(strings.TrimSpace(request), " ")
-
 		switch strings.ToLower(requestStrings[0]) {
 		case RequestPut:
-			log.Println(connection.RemoteAddr(), RequestPut)
+			log.Println(client.Connection.RemoteAddr(), RequestPut)
 			cubbyhole.Put(strings.Join(requestStrings[1:len(requestStrings)], " "))
-			channel <- ResponsePut
+			client.Outgoing <- ResponsePut
 		case RequestGet:
-			log.Println(connection.RemoteAddr(), RequestGet)
+			log.Println(client.Connection.RemoteAddr(), RequestGet)
 			if message := cubbyhole.Get(); message == "" {
-				channel <- fmt.Sprintf(ResponseGet, ResponseNoMessage)
+				client.Outgoing <- fmt.Sprintf(ResponseGet, ResponseNoMessage)
 			} else {
-				channel <- fmt.Sprintf(ResponseGet, message)
+				client.Outgoing <- fmt.Sprintf(ResponseGet, message)
 			}
 		case RequestLook:
-			log.Println(connection.RemoteAddr(), RequestLook)
+			log.Println(client.Connection.RemoteAddr(), RequestLook)
 			if message := cubbyhole.Look(); message == "" {
-				channel <- fmt.Sprintf(ResponseLook, ResponseNoMessage)
+				client.Outgoing <- fmt.Sprintf(ResponseLook, ResponseNoMessage)
 			} else {
-				channel <- fmt.Sprintf(ResponseLook, message)
+				client.Outgoing <- fmt.Sprintf(ResponseLook, message)
 			}
 		case RequestDrop:
-			log.Println(connection.RemoteAddr(), RequestDrop)
+			log.Println(client.Connection.RemoteAddr(), RequestDrop)
 			cubbyhole.Drop()
-			channel <- ResponseDrop
+			client.Outgoing <- ResponseDrop
 		case RequestHelp:
-			log.Println(connection.RemoteAddr(), RequestHelp)
-			channel <- ResponseHelp
+			log.Println(client.Connection.RemoteAddr(), RequestHelp)
+			client.Outgoing <- ResponseHelp
 		case RequestQuit:
-			log.Println(connection.RemoteAddr(), RequestQuit)
-			channel <- ResponseQuit
+			log.Println(client.Connection.RemoteAddr(), RequestQuit)
+			client.Outgoing <- ResponseQuit
 		default:
-			channel <- ResponseNotSupported
+			client.Outgoing <- ResponseNotSupported
 		}
 	}
 }
 
-func sendData(connection net.Conn, channel chan string) {
+func sendData(client *Client) {
 	for {
-		response := <-channel
-		_, err := io.Copy(connection, bytes.NewBufferString(response))
+		response := <-client.Outgoing
+		_, err := io.Copy(client.Connection, bytes.NewBufferString(response))
 		if err != nil {
 			log.Panic(err)
 		}
 
 		if response == ResponseQuit {
-			connection.Close()
+			client.Connection.Close()
+			client.Close()
 		}
 	}
 }
