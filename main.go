@@ -125,7 +125,7 @@ func handleRequest(client *Client, cubbyhole *cubbyhole.Cubbyhole) {
 		switch strings.ToLower(requestStrings[0]) {
 		case RequestPut:
 			log.Println(client.Connection.RemoteAddr(), RequestPut)
-			cubbyhole.Put(strings.Join(requestStrings[1:len(requestStrings)], " "))
+			cubbyhole.Put(strings.Join(requestStrings[1:], " "))
 			client.Outgoing <- ResponsePut
 		case RequestGet:
 			log.Println(client.Connection.RemoteAddr(), RequestGet)
