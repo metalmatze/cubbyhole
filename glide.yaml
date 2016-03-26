@@ -1,3 +1,0 @@
-package: github.com/MetalMatze/cubbyhole
-import:
-- package: github.com/codegangsta/cli
