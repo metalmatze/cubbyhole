@@ -13,23 +13,23 @@ import (
 )
 
 const (
-	RequestPut  = "put"
-	RequestGet  = "get"
-	RequestLook = "look"
-	RequestDrop = "drop"
-	RequestHelp = "help"
-	RequestQuit = "quit"
+	requestPut  = "put"
+	requestGet  = "get"
+	requestLook = "look"
+	requestDrop = "drop"
+	requestHelp = "help"
+	requestQuit = "quit"
 
-	ResponseWelcome      = "!HELLO: Welcome to the Cubbyhole Server! Try 'help' for a list of commands" + ResponsePropmt
-	ResponseHelp         = "!HELP:\nThe following commands are supported by this Cubbyhole:\n\nPUT <message>\t- Places a new message in the cubbyhole\nGET\t\t- Takes the message out of the cubbyhole and displays it\nLOOK\t\t- Displays the massage without taking it out of the cubbyhole\nDROP\t\t- Takes the message out of the cubbyhole without displaying it\nHELP\t\t- Displays this help message\nQUIT\t\t- Terminates the connection\n" + ResponsePropmt
-	ResponseDrop         = "!DROP: ok" + ResponsePropmt
-	ResponseGet          = "!GET: %s" + ResponsePropmt
-	ResponseLook         = "!LOOK: %s" + ResponsePropmt
-	ResponsePut          = "!PUT: ok" + ResponsePropmt
-	ResponseQuit         = "!QUIT: ok"
-	ResponseNotSupported = "!NOT SUPPORTED" + ResponsePropmt
-	ResponseNoMessage    = "<no message stored>"
-	ResponsePropmt       = "\n> "
+	responseWelcome      = "!HELLO: Welcome to the Cubbyhole Server! Try 'help' for a list of commands" + responsePropmt
+	responseHelp         = "!HELP:\nThe following commands are supported by this Cubbyhole:\n\nPUT <message>\t- Places a new message in the cubbyhole\nGET\t\t- Takes the message out of the cubbyhole and displays it\nLOOK\t\t- Displays the massage without taking it out of the cubbyhole\nDROP\t\t- Takes the message out of the cubbyhole without displaying it\nHELP\t\t- Displays this help message\nQUIT\t\t- Terminates the connection\n" + responsePropmt
+	responseDrop         = "!DROP: ok" + responsePropmt
+	responseGet          = "!GET: %s" + responsePropmt
+	responseLook         = "!LOOK: %s" + responsePropmt
+	responsePut          = "!PUT: ok" + responsePropmt
+	responseQuit         = "!QUIT: ok"
+	responseNotSupported = "!NOT SUPPORTED" + responsePropmt
+	responseNoMessage    = "<no message stored>"
+	responsePropmt       = "\n> "
 )
 
 var (
@@ -103,7 +103,7 @@ func main() {
 			go handleRequest(&client, &cubbyhole)
 			go sendData(&client)
 
-			client.Outgoing <- ResponseWelcome
+			client.Outgoing <- responseWelcome
 		}
 	}
 
@@ -123,36 +123,36 @@ func handleRequest(client *Client, cubbyhole *cubbyhole.Cubbyhole) {
 
 		requestStrings := strings.Split(strings.TrimSpace(request), " ")
 		switch strings.ToLower(requestStrings[0]) {
-		case RequestPut:
-			log.Println(client.Connection.RemoteAddr(), RequestPut)
+		case requestPut:
+			log.Println(client.Connection.RemoteAddr(), requestPut)
 			cubbyhole.Put(strings.Join(requestStrings[1:], " "))
-			client.Outgoing <- ResponsePut
-		case RequestGet:
-			log.Println(client.Connection.RemoteAddr(), RequestGet)
+			client.Outgoing <- responsePut
+		case requestGet:
+			log.Println(client.Connection.RemoteAddr(), requestGet)
 			if message := cubbyhole.Get(); message == "" {
-				client.Outgoing <- fmt.Sprintf(ResponseGet, ResponseNoMessage)
+				client.Outgoing <- fmt.Sprintf(responseGet, responseNoMessage)
 			} else {
-				client.Outgoing <- fmt.Sprintf(ResponseGet, message)
+				client.Outgoing <- fmt.Sprintf(responseGet, message)
 			}
-		case RequestLook:
-			log.Println(client.Connection.RemoteAddr(), RequestLook)
+		case requestLook:
+			log.Println(client.Connection.RemoteAddr(), requestLook)
 			if message := cubbyhole.Look(); message == "" {
-				client.Outgoing <- fmt.Sprintf(ResponseLook, ResponseNoMessage)
+				client.Outgoing <- fmt.Sprintf(responseLook, responseNoMessage)
 			} else {
-				client.Outgoing <- fmt.Sprintf(ResponseLook, message)
+				client.Outgoing <- fmt.Sprintf(responseLook, message)
 			}
-		case RequestDrop:
-			log.Println(client.Connection.RemoteAddr(), RequestDrop)
+		case requestDrop:
+			log.Println(client.Connection.RemoteAddr(), requestDrop)
 			cubbyhole.Drop()
-			client.Outgoing <- ResponseDrop
-		case RequestHelp:
-			log.Println(client.Connection.RemoteAddr(), RequestHelp)
-			client.Outgoing <- ResponseHelp
-		case RequestQuit:
-			log.Println(client.Connection.RemoteAddr(), RequestQuit)
-			client.Outgoing <- ResponseQuit
+			client.Outgoing <- responseDrop
+		case requestHelp:
+			log.Println(client.Connection.RemoteAddr(), requestHelp)
+			client.Outgoing <- responseHelp
+		case requestQuit:
+			log.Println(client.Connection.RemoteAddr(), requestQuit)
+			client.Outgoing <- responseQuit
 		default:
-			client.Outgoing <- ResponseNotSupported
+			client.Outgoing <- responseNotSupported
 		}
 	}
 }
@@ -165,7 +165,7 @@ func sendData(client *Client) {
 			log.Panic(err)
 		}
 
-		if response == ResponseQuit {
+		if response == responseQuit {
 			client.Connection.Close()
 			client.Close()
 		}
