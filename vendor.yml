@@ -1,0 +1,3 @@
+vendors:
+- path: github.com/codegangsta/cli
+  rev: bc465becccd1d527002fda095fc3c19d9c115029
