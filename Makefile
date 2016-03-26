@@ -1,10 +1,10 @@
-all: build
-
 PACKAGES = $(shell go list ./... | grep -v /vendor/)
 
+all: deps build test
+
 deps:
-	go get -u github.com/Masterminds/glide
-	glide install
+	go get -u github.com/govend/govend
+	govend -v
 
 build: 
 	go build -o server
